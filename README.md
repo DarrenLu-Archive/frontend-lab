@@ -2,125 +2,59 @@
 
 數位信封、紋理生成、材質模擬等前端實驗。
 
-## 實驗項目
+## 目錄結構
 
-### 1. 數位信封喜帖 (`index.html`)
+```
+frontend-lab/
+├── cinematic-envelope/    # 現行活躍：電影感信封開啟動畫（2026-07 重做）
+├── material-envelopes/    # 材質信封系列 13 款 + showcase（2026-04，已封存供取材）
+├── proposal/              # 電子喜帖服務提案與報價單（PDF 生成腳本）
+└── docs/                  # 技術筆記與整合評估報告
+```
 
-在網頁上重現實體信封 + 蠟封的材質感，不依賴圖片素材，純前端實現。
+## cinematic-envelope/ — 電影感信封開啟動畫（現行）
 
-- **信封**：Canvas 生成的紙張纖維紋理（噪點 + 纖維線條 + 斑塊三層）
-- **蠟封**：Canvas 生成的印泥質感 + CSS 光影立體效果
-- **3D 翻蓋動畫**：CSS `perspective` + `rotateX` + `preserve-3d`，蠟封跟著蓋子物理旋轉
-- **陰影系統**：蓋子旋轉時 3D 空間自然遮擋，V 尖端處陰影逐漸露出
-- **手機版**：全螢幕信封特寫，V 摺痕裝飾
+依 TikTok 婚禮邀請參考影片逐格重做的開啟動畫（2026-07-09）：蠟封字樣速融留壓痕、翻蓋受光掀起、曝光洗白、暗場卡片依序浮字。
 
-### 2. 雙半圓信封 (`petal-envelope.html`)
+- `cinematic-envelope.html` — v2 主實作（純 CSS @keyframes + Canvas 2D 貼圖；`?auto` 自動播放、`?seek=N` 定格驗證 hook；可直接 file:// 開啟）
+- `cinematic-envelope-v3-webgl.html` — **v3（2026-07-12）**：WebGL 法線貼圖打光版，**單一自足檔案，雙擊（file://）即可開啟**（OGL 與貼圖已內嵌，共 249KB）。蠟封＝高度圖→法線→Blinn-Phong 真浮雕（Italianno 刻字壓進高度圖）、紙張＝ambientCG 真實掃描法線貼圖、翻蓋掀起 0.7s 內逐幀真算受光、壓痕＝浮雕殘留。雙層架構：互動與 v2 級視覺用普通 script 保證先動，WebGL 增強層獨立執行、失敗自動留在 v2 視覺。靜態載入時烘焙一次、動畫只跑 transform（效能研究結論）
+- `lib/ogl.min.mjs` — OGL 1.0.11 原始 bundle（jsDelivr ESM，github.com/oframe/ogl）；已內嵌進 v3，此檔留作再生成來源
+- `assets/` — ambientCG Paper002 法線/色彩貼圖 1K 原檔（CC0，來源見 SOURCES.txt）；v3 內嵌的是 512px 壓縮版
+- `cinematic-envelope-sbs.mp4` — 參考對照影片（左＝目標原片、右＝舊版實作）
+- `cinematic-envelope-sbs-v2.mp4` — v2 驗證影片（左＝原片、右＝v2，16 格逐格對齊）
 
-上下兩片半圓翻蓋 + 愛心扣的信封樣式，三階段動畫（愛心消失 → 上蓋翻開 → 下蓋翻開 → 退場）。
+## material-envelopes/ — 材質信封系列（2026-04）
 
-### 3. 皮革信封 (`leather-envelope.html`)
+13 款材質信封原型＋Gallery 總覽（`showcase.html`，iframe 縮圖分組展示）。純 HTML/CSS/JS＋Canvas 2D 紋理生成，不依賴外部圖片素材（僅共用同資料夾內 5 張紙紋 PNG 作底圖）。
 
-深棕皮革材質信封，適合復古/紳士風格婚禮。
+| 檔案 | 主題 |
+|---|---|
+| `index.html` | 公版紙信封（Canvas 三層紙紋＋蠟封＋3D 翻蓋＋手機版 V 摺痕） |
+| `petal-envelope.html` | 雙半圓翻蓋＋愛心扣，三階段動畫 |
+| `leather-envelope.html` | 深棕皮革＋金箔蠟封＋縫線裝飾 |
+| `wood-envelope.html` | 木紋年輪＋燒印蠟封＋木框邊飾 |
+| `velvet-envelope.html` | 紫紅天鵝絨＋珍珠虹彩蠟封 |
+| `rosegold-envelope.html` | 玫瑰金屬刷紋＋珍珠蠟封 |
+| `sunset-envelope.html` | 晚霞漸層＋雲隙光 |
+| `linen-envelope.html` | 亞麻經緯織紋＋金線穿插 |
+| `cloud-envelope.html` | 金時雲霧＋發光蠟封 |
+| `flower-envelope.html` | 壓花古紙＋植物紋蠟封 |
+| `silk-envelope.html` | 絲綢斜織紋＋多角度光帶 |
+| `marble-envelope.html` | 暖色大理石＋隨機漫步金脈 |
+| `watercolor-envelope.html` | 水彩暈染色池 |
 
-- **皮革紋理**：Canvas 生成的毛孔 + 皺褶 + 磨損斑塊 + 光澤層四層
-- **金箔蠟封**：暖金色漸層 + 金屬閃光點
-- **縫線裝飾**：CSS dashed border 模擬手工縫線
+各款的技術細節（紋理生成層數、光影手法）見 git 歷史版 README 或直接讀各檔內註解。
 
-### 4. 木質信封 (`wood-envelope.html`)
-
-木紋材質信封，適合森林系/戶外婚禮風格。
-
-- **木紋紋理**：Canvas 用多頻率 sin 波模擬年輪 + 木纖維 + 隨機木節
-- **燒印蠟封**：深木色底 + 微年輪 + 燒焦邊緣
-- **木框邊飾**：CSS border 模擬木框質感
-
-### 5. 天鵝絨信封 (`velvet-envelope.html`)
-
-紫紅天鵝絨材質信封，適合奢華/浪漫風格婚禮。
-
-- **絨面紋理**：Canvas 生成的斜向絨毛紋 + 方向性光斑 + 對角光帶
-- **珍珠蠟封**：珍珠白底 + 虹彩色偏（角度決定色相）+ conic-gradient 光澤
-- **金邊 + 微光**：radial-gradient 模擬絲絨的角度反光
-
-### 6. 玫瑰金箔信封 (`rosegold-envelope.html`)
-
-粉銅金屬質感信封，適合浪漫/時尚婚禮。
-
-- **金屬刷紋**：Canvas 斜向刷痕 + 光池 + 閃光點，CSS soft-light 金屬光帶
-- **珍珠蠟封**：珍珠白底 + 正弦波虹彩色偏 + 玫瑰金邊
-- **粉銅色調**：與其他暖色系明確區分的粉紅銅色 `#D4A080`
-
-### 7. 晚霞漸層信封 (`sunset-envelope.html`)
-
-日落色漸層信封，適合戶外/黃昏婚禮。
-
-- **漸層紋理**：CSS + Canvas 雙層漸層（淡金 → 蜜桃 → 珊瑚 → 玫瑰）
-- **暖光蠟封**：中心暖金向外漸變至玫瑰色
-- **雲隙光效果**：Canvas 生成的明亮光斑模擬雲層透光
-
-### 8. 亞麻金線信封 (`linen-envelope.html`)
-
-亞麻織布質感信封，適合自然風/鄉村婚禮。
-
-- **經緯織紋**：Canvas + CSS 雙層可見織布格紋
-- **金線穿插**：斜向金色線條模擬金線編織
-- **金蠟封**：溫暖金色漸層 + 織紋細節
-
-### 9. 金時雲霧信封 (`cloud-envelope.html`)
-
-黃金時刻雲霧信封，適合夢幻/浪漫婚禮。
-
-- **雲團紋理**：CSS 多層橢圓漸層模擬柔和雲朵形狀
-- **金色光源**：左上方暖金光照擴散
-- **發光蠟封**：金色漸層底 + 上方高光模擬光暈
-
-### 10. 花押紙信封 (`flower-envelope.html`)
-
-壓花古紙信封，適合花園/自然婚禮。
-
-- **壓花紋理**：Canvas 生成的花瓣（玫瑰/珊瑚色）+ 葉片（金綠色）
-- **老化紙效果**：年齡斑點 + 纖維線條
-- **植物紋蠟封**：花瓣排列 + 葉片裝飾
-
-### 11. 絲綢光澤信封 (`silk-envelope.html`)
-
-絲綢質感信封，適合典雅/精緻婚禮。
-
-- **斜向織紋**：Canvas 45° 細密織紋 + 雙層 CSS 光帶（135° + 120°）
-- **虹彩光澤**：多角度光帶交疊產生絲綢特有的光澤變化
-- **玫瑰金蠟封**：暖奶油/玫瑰漸層 + 金邊
-
-### 12. 暖色大理石信封 (`marble-envelope.html`)
-
-金脈大理石信封，適合華貴/現代婚禮。
-
-- **大理石紋理**：Canvas 暖色斑塊 + 隨機漫步金脈（主脈 + 分支 + 陰影脈）
-- **金脈系統**：14-16 條主脈，自動分支，寬度 2-5px
-- **大理石蠟封**：大理石底紋 + 金脈延伸 + 金色光暈
-
-### 13. 水彩暈染信封 (`watercolor-envelope.html`)
-
-水彩風信封，適合文藝/清新婚禮。
-
-- **暈色池**：Canvas 14 個羽化色池（蜜桃/珊瑚/玫瑰/金色）
-- **暈染效果**：CSS + Canvas 雙層色彩暈散
-- **暈染蠟封**：蜜桃漸層底 + 同心暈染環 + 紙質顆粒感
-
-### 14. 材質展示頁 (`showcase.html`)
-
-所有信封材質的 Gallery 總覽，iframe 縮圖預覽，分組展示。
-
-### 15. 服務提案文件
-
-電子喜帖 & 感謝卡片的客製化服務建議書與報價單。
+## proposal/ — 服務提案文件
 
 - `proposal.md` — 提案內容（Markdown 原稿）
-- `generate_pdf.py` — PDF 生成腳本（fpdf2 + 微軟正黑體）
+- `generate_pdf.py` — PDF 生成腳本（fpdf2＋微軟正黑體，輸出到同資料夾）
 - `2026 電子喜帖與感謝卡片 提案與報價單.pdf` — 最終輸出
 
-## 技術筆記
+## docs/ — 技術筆記
 
-見 [TECHNIQUES.md](./TECHNIQUES.md) — 包含 3D 翻蓋物理邏輯、`preserve-3d` 踩坑、Canvas 紋理生成細節。
+- `TECHNIQUES.md` — 3D 翻蓋物理邏輯、`preserve-3d` 踩坑、Canvas 紋理生成細節
+- `INTEGRATION_DECISION.md` — frontend-lab → 喜帖醬（saas-wedding-invite）整合評估報告（2026-05-07）
 
 ## 技術棧
 
